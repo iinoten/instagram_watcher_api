@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import puppeteer, { ElementHandle, WaitForOptions } from "puppeteer";
+import puppeteer, { BoundingBox, ElementHandle, Page, WaitForOptions } from "puppeteer";
 import * as dotenv from 'dotenv'
+import {scrollPageToBottom}  from 'puppeteer-autoscroll-down'
 dotenv.config()
 
 const INSTAGRAM_FIRST_URL = "https://www.instagram.com/"
@@ -9,8 +10,14 @@ const INSTAGRAM_PASSWORD = process.env.INSTA_PASSWORD as string
 
 const DEMO_SEARCH_ID = "iinoten"
 
+const SEARCH_FOROWWER_TIME = 10
+
 const waitOptions: {[key: string]: string[]} = {
     waitUntil: ['load', 'networkidle2']
+}
+
+const ScrollOption: { [key: string]: number } = {
+  scrollTop: -500
 }
 
 export const main = async () => {
@@ -27,8 +34,32 @@ export const main = async () => {
       await page.waitForNavigation(waitOptions),
   ])
   await page.goto(`${INSTAGRAM_FIRST_URL}/${DEMO_SEARCH_ID}/followers`)
-  //await page.waitForXPath(`//*[@id="mount_0_0_je"]/div/div/div[3]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[2]/div[1]/div/div[1]/div`)
-  await page.waitForXPath(`//div/div/div[3]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[2]/div[1]/div/div[1]/div`)
+  await page.waitForSelector(`body>div:nth-child(n)>div:nth-child(2)>div:nth-child(1)>div:nth-child(3)>div>div>div>div>div>div>div>div>div>div:nth-child(2)>div>div>div:nth-child(2)>div>div>div:last-child`)
+  await page.waitForTimeout(4000)
+  let isDone = false
+  let repeatScrollCount = 0
+  while (!isDone) {
+    await page.evaluate(() => {
+      const name = document.querySelector('body>div:nth-child(n)>div:nth-child(2)>div:nth-child(1)>div:nth-child(3)>div>div>div>div>div>div>div>div>div>div:nth-child(2)>div>div>div:nth-child(2)>div>div>div:last-child');
+      if(name == null) return
+      name.scrollIntoView();
+    })
+  await page.waitForTimeout(2000)
+  repeatScrollCount += 1
+  
+  if(repeatScrollCount >= SEARCH_FOROWWER_TIME) isDone = true
+}
+  
+  // スクロールしたいセレクタ
+  // body>div:nth-child(n)>div:nth-child(2)>div:nth-child(1)>div:nth-child(3)>div>div>div>div>div>div>div>div>div>div:nth-child(2)>div>div>div:nth-child(2)
+
+  // 最後のセレクタ
+  // body>div:nth-child(n)>div:nth-child(2)>div:nth-child(1)>div:nth-child(3)>div>div>div>div>div>div>div>div>div>div:nth-child(2)>div>div>div:nth-child(2)>div>div>div:last-child
+  await page.waitForTimeout(1000)
+  //await page.evaluate(() => {
+  //  document.getElementsByClassName('')
+  //})
+  //await page.$eval(`//*div/div/div[3]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[2]/div//div[last()]`, (dom) => { dom.scrollIntoView() });
   //await page.waitForNavigation(waitOptions),
       //await page.waitForSelector("#mount_0_0_6l > div > div > div:nth-child(3) > div > div > div.x9f619.x1n2onr6.x1ja2u2z > div > div.x1uvtmcs.x4k7w5x.x1h91t0o.x1beo9mf.xaigb6o.x12ejxvf.x3igimt.xarpa2k.xedcshv.x1lytzrv.x1t2pt76.x7ja8zs.x1n2onr6.x1qrby5j.x1jfb8zj > div > div > div > div > div.x7r02ix.xf1ldfh.x131esax.xdajt7p.xxfnqb6.xb88tzc.xw2csxc.x1odjw0f.x5fp0pe > div > div > div._aano > div:nth-child(1) > div > div:nth-child(1) > div")
   /*
