@@ -1,4 +1,5 @@
 import * as admin from "firebase-admin"
+import { resolve } from "path"
 
 const serviceAccount = require("../firebase-test-serviceAccount.json")
 
@@ -11,31 +12,18 @@ interface FollowerDatas {
     "follower-log": Logs[]
 }
 
-
-/*
-
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-})
-
-const db = admin.firestore()
-db.collection('users').doc('leg9MSQ3gipew1S3vMyw').get().then((snapshot)=>{
-    const d = snapshot.data() as FollowerDatas
-    console.log(d["follower-log"])
-    console.log(typeof(d["follower-log"]))
-    d["follower-log"].map(data => {
-        console.log(`${data.timestamp.toDate()}:: ${data.follower}`)
-    })
-}).catch(err=>{
-    console.log("エラー")
-    console.log(err)
-})
-*/
-
-// id
-// leg9MSQ3gipew1S3vMyw
+type returnFFData = {
+    isExistIDsData: boolean,
+    newers: string[],
+    leavers: string[],
+    followersLogs: Logs[]
+}
 export default class FireStoreController {
-
+    constructor(){
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount)
+        })
+    }
     private checkCompareIDArray = (oldArray: string[], newArray: string[]): {leavers: string[], newers: string[]} => {
         let tmpLeaversList:string[] = []
         let tmpNewersList:string[] = []
@@ -59,20 +47,35 @@ export default class FireStoreController {
         return({leavers: tmpLeaversList, newers: tmpNewersList})
     }
     
-    /*
-    updateFollowersData = async (id:string, newFollowerLog: Logs) => {
-        const db = admin.firestore()
-        await db.collection('users').doc(id).get().then((snapshot)=>{
-            const d = snapshot.data() as FollowerDatas
-            console.log(d["follower-log"])
-            console.log(typeof(d["follower-log"]))
-            const recentFollowersLog = d["follower-log"][-1]
-            const newFollowersLogs = [...d["follower-log"], newFollowerLog]
-        }).catch(err=>{
-            console.log("エラー")
-            console.log(err)
-        })
-        let hoge = this.checkCompareStringArray([],[])
-    }
-    */
+    updateFollowersData = (id: string, newFollowerLog: Logs): Promise<returnFFData> => {
+        console.log(`oi: ${newFollowerLog.follower}`);
+        const db = admin.firestore();
+        const doc = db.collection('users').doc(id);
+        return new Promise<returnFFData>((resolve, reject) => {
+          doc.get().then((snapshot) => {
+            const d = snapshot.data() as FollowerDatas;
+            const recentFollowersLog = d["follower-log"]?.[d["follower-log"].length - 1];
+            const followersLogs: Logs[] = Array.isArray(d["follower-log"]) ? d["follower-log"] : [];
+            followersLogs.push({ follower: newFollowerLog.follower, timestamp: admin.firestore.Timestamp.now() });
+            const { leavers, newers } = this.checkCompareIDArray(recentFollowersLog?.follower, newFollowerLog.follower);
+            doc.set({ "follower-log": followersLogs });
+            resolve({
+              isExistIDsData: true,
+              newers,
+              leavers,
+              followersLogs,
+            });
+          }).catch(err => {
+            doc.set({ "follower-log": [{ follower: newFollowerLog.follower, timestamp: admin.firestore.Timestamp.now() }] });
+            console.log("エラー");
+            console.log(err);
+            resolve({
+              isExistIDsData: false,
+              newers: [],
+              leavers: [],
+              followersLogs: [newFollowerLog]
+            }) as unknown as returnFFData;
+          });
+        });
+      };
 }
