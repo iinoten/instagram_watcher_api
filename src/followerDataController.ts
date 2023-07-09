@@ -52,14 +52,11 @@ export const getFollowerDataFromInstagramApp = async (searchID: string) => {
   repeatScrollCount += 1
   if(repeatScrollCount > (followersCnt/ONEPAGE_VIEW_SCROLL_FOLLOWER_COUNT + 2)) isDone = true
 }
-  const followers = await page.$$eval(
+  const followers: string[] = await page.$$eval(
     'body>div:nth-child(n)>div:nth-child(2)>div:nth-child(1)>div:nth-child(3)>div>div>div>div>div>div>div>div>div>div:nth-child(2)>div>div>div:nth-child(2)>div>div>div>div>div>div>div:nth-child(2)>div>div>span:nth-child(1)',
-    list => list.map(e => e.textContent))
-  // スクロールしたいセレクタ
-  // body>div:nth-child(n)>div:nth-child(2)>div:nth-child(1)>div:nth-child(3)>div>div>div>div>div>div>div>div>div>div:nth-child(2)>div>div>div:nth-child(2)
-
-  // 最後のセレクタ
-  // body>div:nth-child(n)>div:nth-child(2)>div:nth-child(1)>div:nth-child(3)>div>div>div>div>div>div>div>div>div>div:nth-child(2)>div>div>div:nth-child(2)>div>div>div:last-child
+    list => list.map(e => e.textContent as string)
+  )
+  
   await page.waitForTimeout(1000)
   console.log("complete")
 }
