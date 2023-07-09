@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import puppeteer, { BoundingBox, ElementHandle, Page, WaitForOptions } from "puppeteer";
 import * as dotenv from 'dotenv'
 import {scrollPageToBottom}  from 'puppeteer-autoscroll-down'
+import FireStoreController, { Logs, returnFFData } from './firestoreController';
+import * as admin from "firebase-admin"
 dotenv.config()
 
 const INSTAGRAM_FIRST_URL = "https://www.instagram.com/"
@@ -18,7 +20,7 @@ const ScrollOption: { [key: string]: number } = {
   scrollTop: -500
 }
 
-export const getFollowerDataFromInstagramApp = async (searchID: string) => {
+export const getFollowerDataFromInstagramApp = async (searchID: string): Promise<returnFFData> => {
   const browser = await puppeteer.launch({
     headless: false
   })
@@ -56,7 +58,9 @@ export const getFollowerDataFromInstagramApp = async (searchID: string) => {
     'body>div:nth-child(n)>div:nth-child(2)>div:nth-child(1)>div:nth-child(3)>div>div>div>div>div>div>div>div>div>div:nth-child(2)>div>div>div:nth-child(2)>div>div>div>div>div>div>div:nth-child(2)>div>div>span:nth-child(1)',
     list => list.map(e => e.textContent as string)
   )
-  
+  const FSController = new FireStoreController()
+  const result = FSController.updateFollowersData(searchID, {follower: followers, timestamp: admin.firestore.Timestamp.now()})
   await page.waitForTimeout(1000)
   console.log("complete")
+  return result
 }
