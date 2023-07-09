@@ -20,7 +20,7 @@ const ScrollOption: { [key: string]: number } = {
   scrollTop: -500
 }
 
-export const main = async () => {
+export const getFollowerDataFromInstagramApp = async () => {
   const browser = await puppeteer.launch({
     headless: false
   })
@@ -65,5 +65,3 @@ export const main = async () => {
   await page.waitForTimeout(1000)
   console.log("complete")
 }
-
-main()
