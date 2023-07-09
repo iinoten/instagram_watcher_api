@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import {getFollowerDataFromInstagramApp} from './followerDataController';
 
 interface HelloResponse {
   hello: string;
@@ -23,10 +24,11 @@ export const helloHandler = (req: Request, res: Response) => {
 interface TestResponse {
   id: string
 }
-type TestBuilder = (id: string) => TestResponse;
-const testBuilder: TestBuilder = ids => ({ id: ids });
-export const testHandler = (req: Request, res: Response) => {
-  const { id } = req.query;
+export const getLatestFollowersData = (req: Request, res: Response) => {
+  const id = req.query.id as string;
   const response = { name: id };
-  res.json(response);
+  getFollowerDataFromInstagramApp(id).then(response => {
+    
+    res.json(response);
+  })
 };

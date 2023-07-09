@@ -1,5 +1,5 @@
 import express, {Request} from 'express';
-import { rootHandler, helloHandler, testHandler } from './handlers';
+import { rootHandler, helloHandler, getLatestFollowersData } from './handlers';
 import { main } from './puppeteer';
 
 const app = express();
@@ -9,7 +9,8 @@ const port = process.env.PORT || '8000';
 // ↑ リクエストが被った時にどういう挙動になるかわからない(後発のリクエストと被ってブラウザが変な挙動になりそう)
 app.get('/', main);
 app.get('/hello/:name', helloHandler);
-app.get('/check', testHandler);
+// TODO GPUがクラッシュする。最適化考えたほうがいい
+app.get('/check', getLatestFollowersData);
 
 app.listen(port, () => {
   return console.log(`Server is listening on ${port}`);
