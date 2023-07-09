@@ -10,6 +10,8 @@ const port = process.env.PORT || '8000';
 app.get('/', main);
 app.get('/hello/:name', helloHandler);
 // TODO GPUがクラッシュする。最適化考えたほうがいい
+// てっとり早いのはレスポンスを返し終わったら仮想ブラウザを閉じることだと思うけど
+//そうするとログインが何回も行なわれるのでBANされそう
 app.get('/check', getLatestFollowersData);
 
 app.listen(port, () => {

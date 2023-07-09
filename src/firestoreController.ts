@@ -18,12 +18,13 @@ export type returnFFData = {
     leavers: string[],
     followersLogs: Logs[]
 }
+
+// 初期化を一度だけ行う
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+})
+
 export default class FireStoreController {
-    constructor(){
-        admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount)
-        })
-    }
     private checkCompareIDArray = (oldArray: string[], newArray: string[]): {leavers: string[], newers: string[]} => {
         let tmpLeaversList:string[] = []
         let tmpNewersList:string[] = []
@@ -48,6 +49,7 @@ export default class FireStoreController {
     }
     
     updateFollowersData = (id: string, newFollowerLog: Logs): Promise<returnFFData> => {
+        // 複数回のクラッシュ 
         console.log(`oi: ${newFollowerLog.follower}`);
         const db = admin.firestore();
         const doc = db.collection('users').doc(id);
