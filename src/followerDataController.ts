@@ -8,8 +8,6 @@ const INSTAGRAM_FIRST_URL = "https://www.instagram.com/"
 const INSTAGRAM_MY_ID = process.env.INSTA_ACCOUNT as string
 const INSTAGRAM_PASSWORD = process.env.INSTA_PASSWORD as string
 
-const DEMO_SEARCH_ID = "iinoten"
-
 const ONEPAGE_VIEW_SCROLL_FOLLOWER_COUNT = 10
 
 const waitOptions: {[key: string]: string[]} = {
@@ -20,7 +18,7 @@ const ScrollOption: { [key: string]: number } = {
   scrollTop: -500
 }
 
-export const getFollowerDataFromInstagramApp = async () => {
+export const getFollowerDataFromInstagramApp = async (searchID: string) => {
   const browser = await puppeteer.launch({
     headless: false
   })
@@ -33,13 +31,13 @@ export const getFollowerDataFromInstagramApp = async () => {
       await page.click('button[type="submit"]'),
       await page.waitForNavigation(waitOptions),
   ])
-  await page.goto(`${INSTAGRAM_FIRST_URL}/${DEMO_SEARCH_ID}`)
+  await page.goto(`${INSTAGRAM_FIRST_URL}/${searchID}`)
   await page.waitForSelector('body>div:nth-child(2)>div>div>div:nth-child(2)>div>div>div>div>div:nth-child(1)>div:nth-child(2)>div:nth-child(2)>section>main>div>header>section>ul>li:nth-child(2)>a>span>span')
   await page.waitForTimeout(2000)
   const followersCnt = parseInt(await page.$eval('body>div:nth-child(2)>div>div>div:nth-child(2)>div>div>div>div>div:nth-child(1)>div:nth-child(2)>div:nth-child(2)>section>main>div>header>section>ul>li:nth-child(2)>a>span>span',
       list => list.textContent)as string)
   
-  await page.goto(`${INSTAGRAM_FIRST_URL}/${DEMO_SEARCH_ID}/followers`)
+  await page.goto(`${INSTAGRAM_FIRST_URL}/${searchID}/followers`)
   await page.waitForSelector(`body>div:nth-child(n)>div:nth-child(2)>div:nth-child(1)>div:nth-child(3)>div>div>div>div>div>div>div>div>div>div:nth-child(2)>div>div>div:nth-child(2)>div>div>div:last-child`)
   await page.waitForTimeout(4000)
   let isDone = false
