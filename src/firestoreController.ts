@@ -3,7 +3,7 @@ import { resolve } from "path"
 
 const serviceAccount = require("../firebase-test-serviceAccount.json")
 
-type Logs = {
+export type Logs = {
     follower: string[],
     timestamp: admin.firestore.Timestamp
 }
@@ -12,7 +12,7 @@ interface FollowerDatas {
     "follower-log": Logs[]
 }
 
-type returnFFData = {
+export type returnFFData = {
     isExistIDsData: boolean,
     newers: string[],
     leavers: string[],
